@@ -303,7 +303,7 @@ export const OperationList = ({
                     defaultValue={version}
                     disabled={!hasMultipleVersions}
                   >
-                    <SelectTrigger className="w-[180px]" size="sm">
+                    <SelectTrigger className="w-45" size="sm">
                       <SelectValue placeholder="Select version" />
                     </SelectTrigger>
                     <SelectContent>

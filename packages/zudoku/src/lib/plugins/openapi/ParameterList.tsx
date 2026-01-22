@@ -1,7 +1,7 @@
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Fragment } from "react";
+import { Fragment, type ReactNode } from "react";
 import { Heading } from "../../components/Heading.js";
-import { Frame, FramePanel } from "../../ui/Frame.js";
+import { Frame, FrameFooter, FramePanel } from "../../ui/Frame.js";
 import { ItemGroup, ItemSeparator } from "../../ui/Item.js";
 import type { ParameterItem } from "./graphql/graphql.js";
 import type { ParameterGroup } from "./OperationListItem.js";
@@ -12,11 +12,13 @@ export const ParameterList = ({
   group,
   parameters,
   id,
+  footer,
 }: {
   summary?: string;
   group: ParameterGroup;
   parameters: ParameterItem[];
   id: string;
+  footer?: ReactNode;
 }) => {
   const sortedParameters = parameters.sort((a, b) =>
     a.required === b.required ? 0 : a.required ? -1 : 1,
@@ -47,6 +49,7 @@ export const ParameterList = ({
             ))}
           </ItemGroup>
         </FramePanel>
+        {footer ? <FrameFooter>{footer}</FrameFooter> : null}
       </Frame>
     </>
   );

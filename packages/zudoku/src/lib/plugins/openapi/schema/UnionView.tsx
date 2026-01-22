@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import type { SchemaObject } from "../../../oas/parser/index.js";
 import { Badge } from "../../../ui/Badge.js";
-import { Frame, FramePanel } from "../../../ui/Frame.js";
+import { Frame, FrameFooter, FramePanel } from "../../../ui/Frame.js";
 import { cn } from "../../../util/cn.js";
 import { SchemaView } from "./SchemaView.js";
 import {
@@ -70,9 +70,11 @@ const DecisionTable = ({
 export const UnionView = ({
   schema,
   cardHeader,
+  footer,
 }: {
   schema: SchemaObject;
-  cardHeader?: React.ReactNode;
+  cardHeader?: ReactNode;
+  footer?: ReactNode;
 }) => {
   const mode = Array.isArray(schema.oneOf)
     ? "oneOf"
@@ -127,6 +129,7 @@ export const UnionView = ({
         <strong>Properties for {selectedVariant}:</strong>
         {currentVariant && <SchemaView schema={currentVariant} />}
       </FramePanel>
+      {footer ? <FrameFooter>{footer}</FrameFooter> : null}
     </Frame>
   );
 };

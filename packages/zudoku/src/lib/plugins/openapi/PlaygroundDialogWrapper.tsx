@@ -4,6 +4,16 @@ import type {
 } from "./graphql/graphql.js";
 import { PlaygroundDialog } from "./playground/PlaygroundDialog.js";
 
+function isTruthyExtension(v: unknown): boolean {
+  if (v === true) return true;
+  if (typeof v === "number") return v === 1;
+  if (typeof v === "string") {
+    const s = v.trim().toLowerCase();
+    return s === "true" || s === "1" || s === "yes" || s === "y";
+  }
+  return false;
+}
+
 export const PlaygroundDialogWrapper = ({
   server,
   servers,
@@ -47,6 +57,14 @@ export const PlaygroundDialogWrapper = ({
       defaultValue: p.schema?.default,
     }));
 
+  const isSigned = isTruthyExtension(
+    (operation.extensions as Record<string, unknown> | undefined)?.["x-signed"],
+  );
+
+  const apiKeyHeaderName =
+    headers?.find((h) => h.name.toLowerCase() === "x-mbx-apikey")?.name ??
+    "X-MBX-APIKEY";
+
   return (
     <PlaygroundDialog
       server={server}
@@ -57,6 +75,8 @@ export const PlaygroundDialogWrapper = ({
       queryParams={queryParams}
       pathParams={pathParams}
       examples={examples}
+      isSigned={isSigned}
+      apiKeyHeaderName={apiKeyHeaderName}
     />
   );
 };

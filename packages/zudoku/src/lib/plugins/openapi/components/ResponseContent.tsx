@@ -1,5 +1,5 @@
 import * as Tabs from "@radix-ui/react-tabs";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { Markdown } from "zudoku/components";
 import { Badge } from "zudoku/ui/Badge.js";
 import { NativeSelect, NativeSelectOption } from "zudoku/ui/NativeSelect.js";
@@ -17,10 +17,12 @@ export const ResponseContent = ({
   responses,
   selectedResponse,
   onSelectResponse,
+  schemaFooter,
 }: {
   responses: Response[];
   selectedResponse?: string;
   onSelectResponse?: (value: string) => void;
+  schemaFooter?: ReactNode;
 }) => {
   const [selectedMediaType, setSelectedMediaType] = useState(
     responses[0]?.content?.[0]?.mediaType ?? "",
@@ -105,6 +107,7 @@ export const ResponseContent = ({
                 )?.schema
               }
               cardHeader={cardHeader}
+              footer={schemaFooter}
             />
           </Tabs.Content>
         ))}

@@ -24,6 +24,7 @@ import {
 import { errorMiddleware } from "./error-handler.js";
 import { getDevHtml } from "./html.js";
 import { buildPagefindDevIndex } from "./pagefind-dev-index.js";
+import { registerPlaygroundProxyRoute } from "./playgroundProxyRoute.js";
 
 const DEFAULT_DEV_PORT = 3000;
 
@@ -65,6 +66,8 @@ export class DevServer {
 
   async start(): Promise<{ vite: ViteDevServer; express: Express }> {
     const app = express();
+
+    registerPlaygroundProxyRoute(app);
 
     const configEnv: ZudokuConfigEnv = {
       mode: "development",
@@ -179,7 +182,9 @@ export class DevServer {
       }
     }
 
-    app.use(/(.*)/, async (request, response, next) => {
+    app.head(/(.*)/, (_req, res) => res.sendStatus(200));
+
+    app.get(/(.*)/, async (request, response, next) => {
       const url = request.originalUrl;
 
       const ssrEnvironment = vite.environments.ssr;

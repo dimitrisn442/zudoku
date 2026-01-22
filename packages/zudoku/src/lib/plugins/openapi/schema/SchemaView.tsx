@@ -1,5 +1,5 @@
 import { InfoIcon } from "lucide-react";
-import { Fragment } from "react";
+import { Fragment, type ReactNode } from "react";
 import {
   Frame,
   FrameDescription,
@@ -11,7 +11,6 @@ import { ItemGroup, ItemSeparator } from "zudoku/ui/Item.js";
 import { Markdown } from "../../../components/Markdown.js";
 import type { SchemaObject } from "../../../oas/parser/index.js";
 import { groupBy } from "../../../util/groupBy.js";
-import { ConstValue } from "../components/ConstValue.js";
 import { EnumValues } from "../components/EnumValues.js";
 import { ParamInfos } from "../ParamInfos.js";
 import { SchemaExampleAndDefault } from "./SchemaExampleAndDefault.js";
@@ -29,8 +28,9 @@ const renderMarkdown = (content?: string) =>
 
 const renderBasicSchema = (
   schema: SchemaObject,
-  cardHeader?: React.ReactNode,
+  cardHeader?: ReactNode,
   embedded?: boolean,
+  footer?: ReactNode,
 ) => {
   const content = (
     <>
@@ -51,6 +51,7 @@ const renderBasicSchema = (
     <Frame>
       {cardHeader}
       <FramePanel className="space-y-2">{content}</FramePanel>
+      {footer ? <FrameFooter>{footer}</FrameFooter> : null}
     </Frame>
   );
 };
@@ -60,11 +61,13 @@ export const SchemaView = ({
   defaultOpen = false,
   cardHeader,
   embedded,
+  footer,
 }: {
   schema?: SchemaObject | null;
   defaultOpen?: boolean;
-  cardHeader?: React.ReactNode;
+  cardHeader?: ReactNode;
   embedded?: boolean;
+  footer?: ReactNode;
 }) => {
   if (!schema || Object.keys(schema).length === 0) {
     return (
@@ -75,20 +78,23 @@ export const SchemaView = ({
             No data returned
           </div>
         </FramePanel>
+        {footer ? <FrameFooter>{footer}</FrameFooter> : null}
       </Frame>
     );
   }
 
   if (schema.const) {
-    return <ConstValue schema={schema} />;
+    return renderBasicSchema(schema, cardHeader, embedded, footer);
   }
 
   if (Array.isArray(schema.oneOf) || Array.isArray(schema.anyOf)) {
-    return <UnionView schema={schema} cardHeader={cardHeader} />;
+    return (
+      <UnionView schema={schema} cardHeader={cardHeader} footer={footer} />
+    );
   }
 
   if (isBasicType(schema.type)) {
-    return renderBasicSchema(schema, cardHeader, embedded);
+    return renderBasicSchema(schema, cardHeader, embedded, footer);
   }
 
   if (isArrayType(schema) && typeof schema.items === "object") {
@@ -146,6 +152,30 @@ export const SchemaView = ({
       return itemsList;
     }
 
+    const additionalPropsFooter =
+      schema.additionalProperties === true ? (
+        <a
+          className="text-sm flex items-center gap-1 hover:underline"
+          href="https://swagger.io/docs/specification/v3_0/data-models/dictionaries/"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Additional properties are allowed
+          <InfoIcon size={14} />
+        </a>
+      ) : null;
+
+    const finalFooter =
+      footer || additionalPropsFooter ? (
+        <>
+          {footer}
+          {footer && additionalPropsFooter ? (
+            <div className="h-px bg-border/60 my-1" />
+          ) : null}
+          {additionalPropsFooter}
+        </>
+      ) : null;
+
     return (
       <Frame>
         {cardHeader}
@@ -160,19 +190,7 @@ export const SchemaView = ({
             {additionalObjectProperties}
           </FramePanel>
         )}
-        {schema.additionalProperties === true && (
-          <FrameFooter>
-            <a
-              className="text-sm flex items-center gap-1 hover:underline"
-              href="https://swagger.io/docs/specification/v3_0/data-models/dictionaries/"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Additional properties are allowed
-              <InfoIcon size={14} />
-            </a>
-          </FrameFooter>
-        )}
+        {finalFooter ? <FrameFooter>{finalFooter}</FrameFooter> : null}
       </Frame>
     );
   }
